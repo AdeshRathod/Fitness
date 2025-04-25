@@ -200,8 +200,7 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
                 Consumer<CartProvider>(
                   builder: (context, cartProvider, child) {
                     if (widget.cartItems.isEmpty) {
-                      return SizedBox
-                          .shrink(); // Return an empty widget if there are no items
+                      return SizedBox.shrink();
                     }
 
                     double subtotal = 0;
