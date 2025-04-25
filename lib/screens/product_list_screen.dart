@@ -22,7 +22,7 @@ class _ProductListScreenState extends State<ProductListScreen>
   bool _isListening = false;
   String _searchQuery = "";
   List _allProducts = [];
-  String _selectedCategory = "Basic"; // default
+  String _selectedCategory = "Fitness";
 
   final List<String> categories = [
     "Basic",
@@ -93,6 +93,8 @@ class _ProductListScreenState extends State<ProductListScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -102,7 +104,7 @@ class _ProductListScreenState extends State<ProductListScreen>
           'Fitness',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 20,
+            fontSize: screenWidth > 600 ? 24 : 20,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -118,8 +120,8 @@ class _ProductListScreenState extends State<ProductListScreen>
                   children: [
                     Image.asset(
                       'assets/icons/cart.png',
-                      height: 24,
-                      width: 24,
+                      height: screenWidth > 600 ? 32 : 24,
+                      width: screenWidth > 600 ? 32 : 24,
                     ),
                     if (cartCount > 0)
                       Positioned(
@@ -139,7 +141,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                             cartCount.toString(),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: screenWidth > 600 ? 12 : 10,
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
@@ -173,7 +175,6 @@ class _ProductListScreenState extends State<ProductListScreen>
                   suffixIcon: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      print("Mic icon tapped");
                       _isListening ? _stopListening() : _startListening();
                     },
                     child: Icon(_isListening ? Icons.mic : Icons.mic_none),
@@ -202,8 +203,10 @@ class _ProductListScreenState extends State<ProductListScreen>
                       _filterProductsByCategory(categories[index]);
                     },
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth > 600 ? 16 : 12,
+                        vertical: screenWidth > 600 ? 12 : 8,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(4),
@@ -212,7 +215,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                         categories[index],
                         style: TextStyle(
                           color: isSelected ? Colors.blue : Colors.black,
-                          fontSize: 16,
+                          fontSize: screenWidth > 600 ? 18 : 16,
                         ),
                       ),
                     ),
@@ -227,147 +230,166 @@ class _ProductListScreenState extends State<ProductListScreen>
                       ? Center(
                           child: Text(
                             "No products listed in this category as of now.",
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: screenWidth > 600 ? 18 : 16,
+                              color: Colors.grey,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         )
-                      : GridView.builder(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          itemCount: products.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 0.4,
-                          ),
-                          itemBuilder: (context, index) {
-                            final product = products[index];
-                            if (_searchQuery.isNotEmpty &&
-                                !product['name']
-                                    .toLowerCase()
-                                    .contains(_searchQuery.toLowerCase())) {
-                              return SizedBox.shrink();
-                            }
-                            return GestureDetector(
-                              onTap: () {
-                                GoRouter.of(context)
-                                    .push('/details', extra: product);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Color(0xFF999595), width: 1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(12)),
-                                      child: Image.asset(
-                                        '${product['images'][_currentImageIndex % product['images'].length]}',
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    if (product['images'].length > 1)
-                                      Center(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: List.generate(
-                                              product['images'].length,
-                                              (dotIndex) {
-                                            return Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 2),
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                color: dotIndex ==
-                                                        _currentImageIndex %
-                                                            product['images']
-                                                                .length
-                                                    ? Colors.black
-                                                    : Colors.grey.shade300,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    Divider(height: 16),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            product['name'],
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            "₹${product['price']} / month",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                          SizedBox(height: 4),
-                                          if (product['oldPrice'] != null &&
-                                              product['discount'] != null)
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue.shade100,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                  child: Text(
-                                                    "-${product['discount']}%",
-                                                    style: TextStyle(
-                                                        color: Colors.blue),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 6),
-                                                Text(
-                                                  "₹${product['oldPrice']}/mo",
-                                                  style: TextStyle(
-                                                    decoration: TextDecoration
-                                                        .lineThrough,
-                                                    fontSize: 13,
-                                                    color: Color(0xFF999595),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            "Delivery by ${product['delivery']}",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            final crossAxisCount = screenWidth > 600 ? 3 : 2;
+                            return GridView.builder(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
+                              itemCount: products.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                childAspectRatio:
+                                    screenWidth > 500 ? 0.6 : 0.55,
                               ),
+                              itemBuilder: (context, index) {
+                                final product = products[index];
+                                if (_searchQuery.isNotEmpty &&
+                                    !product['name']
+                                        .toLowerCase()
+                                        .contains(_searchQuery.toLowerCase())) {
+                                  return SizedBox.shrink();
+                                }
+                                return GestureDetector(
+                                  onTap: () {
+                                    GoRouter.of(context)
+                                        .push('/details', extra: product);
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Color(0xFF999595), width: 1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(12)),
+                                          child: Image.asset(
+                                            '${product['images'][_currentImageIndex % product['images'].length]}',
+                                            height:
+                                                screenWidth > 600 ? 160 : 120,
+                                            width: double.infinity,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        if (product['images'].length > 1)
+                                          Center(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: List.generate(
+                                                  product['images'].length,
+                                                  (dotIndex) {
+                                                return Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 2),
+                                                  width: 6,
+                                                  height: 6,
+                                                  decoration: BoxDecoration(
+                                                    color: dotIndex ==
+                                                            _currentImageIndex %
+                                                                product['images']
+                                                                    .length
+                                                        ? Colors.black
+                                                        : Colors.grey.shade300,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                );
+                                              }),
+                                            ),
+                                          ),
+                                        Divider(height: 16),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                product['name'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: screenWidth > 600
+                                                        ? 16
+                                                        : 14),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                "₹${product['price']} / month",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: screenWidth > 600
+                                                        ? 17
+                                                        : 15),
+                                              ),
+                                              SizedBox(height: 4),
+                                              if (product['oldPrice'] != null &&
+                                                  product['discount'] != null)
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors
+                                                            .blue.shade100,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                      ),
+                                                      child: Text(
+                                                        "-${product['discount']}%",
+                                                        style: TextStyle(
+                                                            color: Colors.blue),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 6),
+                                                    Text(
+                                                      "₹${product['oldPrice']}/mo",
+                                                      style: TextStyle(
+                                                        decoration:
+                                                            TextDecoration
+                                                                .lineThrough,
+                                                        fontSize: 13,
+                                                        color:
+                                                            Color(0xFF999595),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                "Delivery by ${product['delivery']}",
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
