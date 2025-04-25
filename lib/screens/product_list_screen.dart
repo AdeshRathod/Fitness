@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-// import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ProductListScreen extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _ProductListScreenState extends State<ProductListScreen>
   List products = [];
   late Timer _timer;
   int _currentImageIndex = 0;
-  // late stt.SpeechToText _speech;
+  late stt.SpeechToText _speech;
   bool _isListening = false;
   String _searchQuery = "";
   List _allProducts = [];
@@ -34,7 +34,7 @@ class _ProductListScreenState extends State<ProductListScreen>
   @override
   void initState() {
     super.initState();
-    // _speech = stt.SpeechToText();
+    _speech = stt.SpeechToText();
     _tabController = TabController(length: categories.length, vsync: this);
     loadProducts();
     startImageRotation();
@@ -58,22 +58,22 @@ class _ProductListScreenState extends State<ProductListScreen>
     });
   }
 
-  // void _startListening() async {
-  //   bool available = await _speech.initialize();
-  //   if (available) {
-  //     setState(() => _isListening = true);
-  //     _speech.listen(onResult: (val) {
-  //       setState(() {
-  //         _searchQuery = val.recognizedWords;
-  //       });
-  //     });
-  //   }
-  // }
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(onResult: (val) {
+        setState(() {
+          _searchQuery = val.recognizedWords;
+        });
+      });
+    }
+  }
 
-  // void _stopListening() {
-  //   setState(() => _isListening = false);
-  //   _speech.stop();
-  // }
+  void _stopListening() {
+    setState(() => _isListening = false);
+    _speech.stop();
+  }
 
   void _filterProductsByCategory(String category) {
     setState(() {
@@ -174,7 +174,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
                       print("Mic icon tapped");
-                      // _isListening ? _stopListening() : _startListening();
+                      _isListening ? _stopListening() : _startListening();
                     },
                     child: Icon(_isListening ? Icons.mic : Icons.mic_none),
                   ),
@@ -240,7 +240,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                             crossAxisCount: 2,
                             mainAxisSpacing: 12,
                             crossAxisSpacing: 12,
-                            childAspectRatio: 0.68,
+                            childAspectRatio: 0.4,
                           ),
                           itemBuilder: (context, index) {
                             final product = products[index];
