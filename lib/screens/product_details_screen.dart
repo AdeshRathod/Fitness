@@ -14,6 +14,7 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   int selectedImageIndex = 0;
+  bool isLiked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +170,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      product['name'],
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            product['name'],
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isLiked = !isLiked;
+                            });
+                          },
+                          child: AnimatedScale(
+                            scale: isLiked ? 1.3 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            child: Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.grey,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       'New performance features and new exercise and entertainment options.',

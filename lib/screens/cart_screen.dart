@@ -17,6 +17,7 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   List<dynamic> products = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -116,6 +117,11 @@ class _CartScreenState extends State<CartScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16.0),
                               child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value.toLowerCase();
+                                  });
+                                },
                                 decoration: InputDecoration(
                                   hintText: 'Search',
                                   prefixIcon: Icon(Icons.search),
@@ -136,9 +142,20 @@ class _CartScreenState extends State<CartScreen> {
                             ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount: widget.cartItems.length + 1,
+                              itemCount: widget.cartItems.keys
+                                      .where((productName) => productName
+                                          .toLowerCase()
+                                          .contains(_searchQuery))
+                                      .length +
+                                  1,
                               itemBuilder: (context, index) {
-                                if (index == widget.cartItems.length) {
+                                final filteredItems = widget.cartItems.keys
+                                    .where((productName) => productName
+                                        .toLowerCase()
+                                        .contains(_searchQuery))
+                                    .toList();
+
+                                if (index == filteredItems.length) {
                                   return Padding(
                                     padding: const EdgeInsets.only(
                                         left: 16.0,
@@ -180,8 +197,7 @@ class _CartScreenState extends State<CartScreen> {
                                   );
                                 }
 
-                                final productName =
-                                    widget.cartItems.keys.elementAt(index);
+                                final productName = filteredItems[index];
                                 final quantity = widget.cartItems[productName]!;
                                 final productDetails =
                                     _getProductDetails(productName);
