@@ -47,13 +47,9 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Order Summary',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+        title: Text(
+          'Cart Summary',
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.black),
@@ -200,6 +196,48 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
                     );
                   },
                 ),
+                const SizedBox(height: 20),
+                Consumer<CartProvider>(
+                  builder: (context, cartProvider, child) {
+                    if (widget.cartItems.isEmpty) {
+                      return SizedBox
+                          .shrink(); // Return an empty widget if there are no items
+                    }
+
+                    double subtotal = 0;
+                    widget.cartItems.forEach((productName, _) {
+                      final productDetails = _getProductDetails(productName);
+                      if (productDetails != null) {
+                        int quantity = cartProvider.getQuantity(productName);
+                        subtotal += productDetails['price'] * quantity;
+                      }
+                    });
+                    double tax = subtotal * 0.05;
+                    double total = subtotal + tax;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _priceRow('Subtotal', subtotal),
+                            const SizedBox(height: 8),
+                            _priceRow('Tax (5%)', tax),
+                            const Divider(height: 24),
+                            _priceRow('Total', total, isBold: true),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -324,13 +362,9 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
+                      Text(
                         'Order Placed Successfully!',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                        style: Theme.of(context).textTheme.displayLarge,
                       ),
                     ],
                   ),
@@ -374,4 +408,26 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
             ),
     );
   }
+}
+
+Widget _priceRow(String label, double value, {bool isBold = false}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      Text(
+        '₹${value.toStringAsFixed(2)}',
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+    ],
+  );
 }

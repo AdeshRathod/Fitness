@@ -175,8 +175,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         Expanded(
                           child: Text(
                             product['name'],
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w500),
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -201,7 +200,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     Text(
                       'New performance features and new exercise and entertainment options.',
-                      style: TextStyle(color: Colors.black87),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),

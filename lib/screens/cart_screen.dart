@@ -52,11 +52,7 @@ class _CartScreenState extends State<CartScreen> {
         centerTitle: true,
         title: Text(
           'Cart',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.black),
@@ -71,7 +67,7 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   'Your cart is empty',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 SizedBox(height: 20),
                 GestureDetector(
@@ -94,10 +90,7 @@ class _CartScreenState extends State<CartScreen> {
                       SizedBox(width: 6),
                       Text(
                         'Add products to cart',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),

@@ -102,11 +102,7 @@ class _ProductListScreenState extends State<ProductListScreen>
         centerTitle: true,
         title: Text(
           'Fitness',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: screenWidth > 600 ? 24 : 20,
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         actions: [
           Consumer<CartProvider>(
@@ -193,34 +189,78 @@ class _ProductListScreenState extends State<ProductListScreen>
             Divider(height: 1),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(categories.length, (index) {
-                  final isSelected = _tabController.index == index;
-                  return GestureDetector(
-                    onTap: () {
-                      _tabController.animateTo(index);
-                      _filterProductsByCategory(categories[index]);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth > 600 ? 16 : 12,
-                        vertical: screenWidth > 600 ? 12 : 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        categories[index],
-                        style: TextStyle(
-                          color: isSelected ? Colors.blue : Colors.black,
-                          fontSize: screenWidth > 600 ? 18 : 16,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWideScreen = constraints.maxWidth > 600;
+                  return isWideScreen
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(categories.length, (index) {
+                            final isSelected = _tabController.index == index;
+                            return GestureDetector(
+                              onTap: () {
+                                _tabController.animateTo(index);
+                                _filterProductsByCategory(categories[index]);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  categories[index],
+                                  style: isSelected
+                                      ? Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(color: Colors.blue)
+                                      : Theme.of(context).textTheme.bodyLarge,
+                                ),
+                              ),
+                            );
+                          }),
+                        )
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(categories.length, (index) {
+                              final isSelected = _tabController.index == index;
+                              return GestureDetector(
+                                onTap: () {
+                                  _tabController.animateTo(index);
+                                  _filterProductsByCategory(categories[index]);
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 4),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    categories[index],
+                                    style: isSelected
+                                        ? Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(color: Colors.blue)
+                                        : Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        );
+                },
               ),
             ),
             Expanded(
@@ -250,7 +290,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
                                 childAspectRatio:
-                                    screenWidth > 500 ? 0.6 : 0.55,
+                                    screenWidth > 500 ? 0.6 : 0.51,
                               ),
                               itemBuilder: (context, index) {
                                 final product = products[index];
@@ -403,19 +443,27 @@ class _ProductListScreenState extends State<ProductListScreen>
                 child: Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.sort, color: Colors.grey),
-                          SizedBox(height: 4),
-                          Text(
-                            'Sort',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            products.sort((a, b) => (a['price'] as num)
+                                .compareTo(b['price'] as num));
+                          });
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.sort, color: Colors.grey),
+                            SizedBox(height: 4),
+                            Text(
+                              'Sort',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Container(
@@ -424,19 +472,39 @@ class _ProductListScreenState extends State<ProductListScreen>
                       color: Color(0xFF999595),
                     ),
                     Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.filter_alt_outlined, color: Colors.grey),
-                          SizedBox(height: 4),
-                          Text(
-                            'Filter',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey,
+                      child: GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return ListView(
+                                children: categories.map((category) {
+                                  return ListTile(
+                                    title: Text(category),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      _filterProductsByCategory(category);
+                                    },
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          );
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.filter_alt_outlined, color: Colors.grey),
+                            SizedBox(height: 4),
+                            Text(
+                              'Filter',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
