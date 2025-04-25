@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Auto Inclination Treadmill T-501",
+    "price": 1269,
+    "oldPrice": 1659,
+    "discount": 24,
+    "delivery": "25 Nov",
+    "category":"Fitness",
+    "images": [
+      "assets/Treadmill/Treadmill.png",
+      "assets/products/Auto_Inclination_Treadmil.png",
+      "assets/Treadmill/Treadmill1.png",
+      "assets/Treadmill/Treadmill3.png",
+      "assets/Treadmill/Treadmill4.png"
+
+    ]
+  },
+  {
+    "name": "Crazy Fit Massager VP-500",
+    "price": 1369,
+    "oldPrice": 1699,
+    "discount": 24,
+    "delivery": "29 Nov",
+    "category":"Fitness",
+
+    "images": [
+      "assets/products/Crazy_Fit_Massager.png"
+    ]
+  },
+  {
+    "name": "Exercise Cycle AB-100",
+    "price": 1269,
+    "oldPrice": null,
+    "discount": null,
+    "delivery": "25 Nov",
+    "category":"Fitness",
+
+    "images": [
+      "assets/products/Exercise_Cycle.png"
+    ]
+  },
+  {
+    "name": "Smart Magnetic Exercise Bike",
+    "price": 1399,
+    "oldPrice": null,
+    "discount": null,
+    "delivery": "30 Nov",
+    "category":"Fitness",
+
+    "images": [
+      "assets/products/Smart_Magnetic_Exercise_Bike.png"
+    ]
+  },
+  {
+    "name": "Water Purifier - Drink Prime",
+    "price": 969,
+    "oldPrice": null,
+    "discount": null,
+    "category":"Appliances",
+
+    "delivery": "30 Nov",
+    "images": [
+      "assets/products/Drink_Prime.png"
+    ]
+  }
+]
