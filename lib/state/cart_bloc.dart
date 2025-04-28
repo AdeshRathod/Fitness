@@ -13,6 +13,8 @@ class RemoveFromCart extends CartEvent {
   RemoveFromCart(this.productId);
 }
 
+class ClearCart extends CartEvent {}
+
 // State
 abstract class CartState {}
 
@@ -35,6 +37,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     on<RemoveFromCart>((event, emit) {
       _cartItems.remove(event.productId);
+      emit(CartUpdated(List.from(_cartItems)));
+    });
+
+    on<ClearCart>((event, emit) {
+      _cartItems.clear();
       emit(CartUpdated(List.from(_cartItems)));
     });
   }

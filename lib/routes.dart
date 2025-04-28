@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'state/cart_bloc.dart';
 import 'screens/product_list_screen.dart';
 import 'screens/product_details_screen.dart';
 import 'screens/cart_screen.dart';
@@ -20,15 +22,19 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/cart',
       builder: (context, state) {
-        final cartItems = state.extra as Map<String, int>? ?? {};
-        return CartScreen(cartItems: cartItems);
+        return BlocProvider.value(
+          value: BlocProvider.of<CartBloc>(context),
+          child: CartScreen(),
+        );
       },
     ),
     GoRoute(
       path: '/summary',
       builder: (context, state) {
-        final cartItems = state.extra as Map<String, int>? ?? {};
-        return CartSummaryScreen(cartItems: cartItems);
+        return BlocProvider.value(
+          value: BlocProvider.of<CartBloc>(context),
+          child: CartSummaryScreen(),
+        );
       },
     ),
   ],

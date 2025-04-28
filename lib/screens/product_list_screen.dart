@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:fitness/state/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../state/cart_bloc.dart';
 
 class ProductListScreen extends StatefulWidget {
   @override
@@ -85,10 +85,12 @@ class _ProductListScreenState extends State<ProductListScreen>
           style: Theme.of(context).textTheme.displayMedium,
         ),
         actions: [
-          Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
-              final cartCount = cartProvider.items.values
-                  .fold<int>(0, (sum, quantity) => sum + quantity);
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, state) {
+              int cartCount = 0;
+              if (state is CartUpdated) {
+                cartCount = state.cartItems.length;
+              }
 
               return IconButton(
                 icon: Stack(
@@ -127,7 +129,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                   ],
                 ),
                 onPressed: () {
-                  context.push('/cart', extra: cartProvider.items);
+                  context.push('/cart');
                 },
               );
             },

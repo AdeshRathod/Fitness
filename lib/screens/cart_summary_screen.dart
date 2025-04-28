@@ -6,9 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../state/cart_bloc.dart';
 
 class CartSummaryScreen extends StatefulWidget {
-  final Map<String, int> cartItems;
-
-  CartSummaryScreen({required this.cartItems});
+  CartSummaryScreen();
 
   @override
   State<CartSummaryScreen> createState() => _CartSummaryScreenState();
@@ -41,179 +39,343 @@ class _CartSummaryScreenState extends State<CartSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CartBloc(),
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            'Cart Summary',
-            style: Theme.of(context).textTheme.displayMedium,
-          ),
-          leading: IconButton(
-            icon:
-                const Icon(Icons.arrow_back_ios_outlined, color: Colors.black),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Cart Summary',
+          style: Theme.of(context).textTheme.displayMedium,
         ),
-        body: BlocBuilder<CartBloc, CartState>(
-          builder: (context, state) {
-            if (state is CartInitial ||
-                (state is CartUpdated && state.cartItems.isEmpty)) {
-              return Center(
-                child: Text(
-                  'Your cart is empty',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              );
-            } else if (state is CartUpdated) {
-              final cartItems = state.cartItems;
-              return Stack(
-                children: [
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.only(top: 140),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 60),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: cartItems.length,
-                          itemBuilder: (context, index) {
-                            final productName = cartItems[index];
-                            final productDetails =
-                                _getProductDetails(productName);
-
-                            if (productDetails == null) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.asset(
-                                        productDetails['images'][0],
-                                        width: 70,
-                                        height: 70,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  productName,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                '₹${productDetails['price']}',
-                                                style: const TextStyle(
-                                                  color: Color(0xFF42A5F5),
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFF5F5F5),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _priceRow('Subtotal',
-                                    0), // Replace with actual calculation
-                                const SizedBox(height: 8),
-                                _priceRow('Tax (5%)',
-                                    0), // Replace with actual calculation
-                                const Divider(height: 24),
-                                _priceRow('Total', 0,
-                                    isBold:
-                                        true), // Replace with actual calculation
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
-            return SizedBox.shrink();
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
           },
         ),
       ),
+      body: BlocBuilder<CartBloc, CartState>(
+        builder: (context, state) {
+          if (state is CartInitial ||
+              (state is CartUpdated && state.cartItems.isEmpty)) {
+            return Center(
+              child: Text(
+                'Your cart is empty',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            );
+          } else if (state is CartUpdated) {
+            final cartItems = state.cartItems;
+            double subtotal = 0;
+            cartItems.forEach((productName) {
+              final productDetails = _getProductDetails(productName);
+              if (productDetails != null) {
+                subtotal += productDetails['price'];
+              }
+            });
+            double tax = subtotal * 0.05;
+            double total = subtotal + tax;
+
+            return Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: 140),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 60),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: cartItems.length,
+                        itemBuilder: (context, index) {
+                          final productName = cartItems[index];
+                          final productDetails =
+                              _getProductDetails(productName);
+
+                          if (productDetails == null) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.asset(
+                                      productDetails['images'][0],
+                                      width: 70,
+                                      height: 70,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                productName,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '₹${productDetails['price']}',
+                                              style: const TextStyle(
+                                                color: Color(0xFF42A5F5),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.black12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _priceRow('Subtotal', subtotal),
+                              const SizedBox(height: 8),
+                              _priceRow('Tax (5%)', tax),
+                              const Divider(height: 24),
+                              _priceRow('Total', total, isBold: true),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 100,
+                  width: double.infinity,
+                  color: const Color(0xFFE8F0FF),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 30,
+                  right: 30,
+                  child: Column(
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, 60),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 1),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFD9D9D9),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    "SSk",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "6,1st Avenue Street HSR Layout\n5th,Sector, Bengaluru,560034.",
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  height: 1.4,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Contact-OOOOOOOOOOO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_orderSuccess)
+                  AnimatedOpacity(
+                    opacity: _orderSuccess ? 1 : 0,
+                    duration: Duration(milliseconds: 500),
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.white.withOpacity(0.95),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TweenAnimationBuilder<double>(
+                              tween: Tween<double>(begin: 0, end: 1),
+                              duration: Duration(milliseconds: 800),
+                              curve: Curves.easeOutBack,
+                              builder: (context, value, child) {
+                                return Transform.scale(
+                                  scale: value,
+                                  child: child,
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.greenAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(24),
+                                child: Icon(
+                                  Icons.check,
+                                  size: 64,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Order Placed Successfully!',
+                              style: Theme.of(context).textTheme.displayLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }
+          return SizedBox.shrink();
+        },
+      ),
+      bottomNavigationBar: _orderSuccess
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _orderSuccess = true;
+                  });
+
+                  Future.delayed(const Duration(seconds: 2), () {
+                    setState(() {
+                      _orderSuccess = false;
+                    });
+                    context.read<CartBloc>().add(ClearCart());
+
+                    context.go('/');
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5D9BFF),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  "Confirm and Proceed",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
     );
   }
-}
 
-Widget _priceRow(String label, double value, {bool isBold = false}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+  Widget _priceRow(String label, double value, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
-      ),
-      Text(
-        '₹${value.toStringAsFixed(2)}',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        Text(
+          '₹${value.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

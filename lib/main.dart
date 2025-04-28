@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'routes.dart';
-import 'state/cart_provider.dart';
+import 'state/cart_bloc.dart';
 import 'constants/theme.dart';
 
 void main() {
@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CartProvider(),
+    return BlocProvider(
+      create: (_) => CartBloc(),
       child: MaterialApp.router(
         title: 'Fitness',
         theme: appTheme,

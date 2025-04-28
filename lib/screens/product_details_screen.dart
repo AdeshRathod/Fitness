@@ -1,7 +1,7 @@
-import 'package:fitness/state/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../state/cart_bloc.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -18,9 +18,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context);
     final product = widget.product;
-    final cartQuantity = cartProvider.getQuantity(product['name']);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,10 +31,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           },
         ),
         actions: [
-          Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
-              final cartCount = cartProvider.items.values
-                  .fold<int>(0, (sum, quantity) => sum + quantity);
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, state) {
+              int cartCount = 0;
+              if (state is CartUpdated) {
+                cartCount = state.cartItems.length;
+              }
 
               return IconButton(
                 icon: Stack(
@@ -75,7 +75,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ],
                 ),
                 onPressed: () {
-                  context.push('/cart', extra: cartProvider.items);
+                  context.push('/cart');
                 },
               );
             },
@@ -293,66 +293,79 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
-        child: cartQuantity == 0
-            ? ElevatedButton(
-                onPressed: () {
-                  cartProvider.addItem(product);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5D9BFF),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child:
-                    const Text("ADD TO CART", style: TextStyle(fontSize: 16)),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
+        child: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            bool isInCart = false;
+            if (state is CartUpdated) {
+              isInCart = state.cartItems.contains(product['name']);
+            }
+
+            return isInCart
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                context
+                                    .read<CartBloc>()
+                                    .add(RemoveFromCart(product['name']));
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.remove, size: 20),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                '1', // Update with actual quantity if needed
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                context
+                                    .read<CartBloc>()
+                                    .add(AddToCart(product['name']));
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.add, size: 20),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : ElevatedButton(
+                    onPressed: () {
+                      context.read<CartBloc>().add(AddToCart(product['name']));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5D9BFF),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            cartProvider.updateQuantity(
-                                product['name'], cartQuantity - 1);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Icon(Icons.remove, size: 20),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            cartQuantity.toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            cartProvider.addItem(product);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Icon(Icons.add, size: 20),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                    child: const Text("ADD TO CART",
+                        style: TextStyle(fontSize: 16)),
+                  );
+          },
+        ),
       ),
     );
   }
