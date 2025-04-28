@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ProductListScreen extends StatefulWidget {
   @override
@@ -18,7 +17,6 @@ class _ProductListScreenState extends State<ProductListScreen>
   List products = [];
   late Timer _timer;
   int _currentImageIndex = 0;
-  late stt.SpeechToText _speech;
   bool _isListening = false;
   String _searchQuery = "";
   List _allProducts = [];
@@ -34,7 +32,6 @@ class _ProductListScreenState extends State<ProductListScreen>
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
     _tabController = TabController(length: categories.length, vsync: this);
     loadProducts();
     startImageRotation();
@@ -56,23 +53,6 @@ class _ProductListScreenState extends State<ProductListScreen>
         _currentImageIndex = (_currentImageIndex + 1) % 3;
       });
     });
-  }
-
-  void _startListening() async {
-    bool available = await _speech.initialize();
-    if (available) {
-      setState(() => _isListening = true);
-      _speech.listen(onResult: (val) {
-        setState(() {
-          _searchQuery = val.recognizedWords;
-        });
-      });
-    }
-  }
-
-  void _stopListening() {
-    setState(() => _isListening = false);
-    _speech.stop();
   }
 
   void _filterProductsByCategory(String category) {
@@ -170,9 +150,7 @@ class _ProductListScreenState extends State<ProductListScreen>
                   prefixIcon: Icon(Icons.search),
                   suffixIcon: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      _isListening ? _stopListening() : _startListening();
-                    },
+                    onTap: () {},
                     child: Icon(_isListening ? Icons.mic : Icons.mic_none),
                   ),
                   filled: true,

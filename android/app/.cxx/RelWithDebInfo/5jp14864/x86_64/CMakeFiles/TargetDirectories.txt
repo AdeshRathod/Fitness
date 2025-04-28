@@ -1,0 +1,2 @@
+C:/Users/admin/flutter work/fitness/android/app/.cxx/RelWithDebInfo/5jp14864/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/admin/flutter work/fitness/android/app/.cxx/RelWithDebInfo/5jp14864/x86_64/CMakeFiles/rebuild_cache.dir
